@@ -1,0 +1,211 @@
+---
+title: "Assignment 10: Clustering"
+author: "Rezoon Rasheed"
+format: html
+editor: source
+self-contained: true
+toc: true
+toc-expand: true
+toc-depth: 3
+---
+
+```{r setup, include=FALSE}
+rm(list = ls()) # clears global environment
+knitr::opts_knit$set(root.dir = '/Users/rez/Desktop/QTM6300 Machine Learning for business/Data for class')
+```
+
+
+# Context
+
+You have salary and compensation data for a set of public employees in San Francisco in Employee_Compensation_SF.csv. This data set includes the following variables for salary in 2016:
+
+Employee Identifier: Unique ID for each employee
+Organization: Organization within San Francisco's government
+Department: Department within Orgniaztion
+Union: Union abbreviation
+Job Family: Type of job
+Job: Job Title
+Salary: Annual Salary (in $USD)
+Overtime: Overtime Salary (in $USD)
+Other Salaries: Other Salary, which could include contractor salary, one-time bonuses, extra work taken on, etc.  (in $USD)
+Total Salary: Sum of three salary numbers (in $USD)
+Retirement: Amount paid into retirement (in $USD)
+Health/Dental: Amount paid into Health/Dental (in $USD)
+Other Benefits: Other Benefits, such as dependent care, FSA, etc. (in $USD)
+Total Compensation: Total Compensation, including salaries and benefits (in $USD)
+
+
+
+## Question 1
+
+Do the following:
+* Import the data.
+* Remove all inappropriate variables for k-means clustering
+* Remove any rows with missing values
+* Standardize your remaining variables
+
+```{r}
+df <- read.csv("Employee_Compensation_SF.csv") # importing dataset
+
+# removing missing values
+df <- na.omit(df)
+
+# removing unnecessary values
+df$Employee.Identifier <- NULL
+df$Organization.Group <- NULL
+df$Department <- NULL
+df$Union <- NULL
+df$Job.Family <- NULL
+df$Job <- NULL
+
+# standardizing
+library(caret)
+standardizer <- preProcess(df,method = c("scale","center")) 
+df <- predict(standardizer, df)
+```
+
+
+
+## Question 2
+
+Use ggplot to plot the relationship between Total Salary and Total Benefits. What is the relationship between the two variables?
+
+Answer: The plot gives us a rough idea, with the direction of the points scattered, suggesting a positive correlation between these variables. To further confirm it, a trend line is also drawn to visualize the gradient of the line to see the relation more prominently.
+
+```{r}
+library(ggplot2)
+ggplot(df, aes(x = Total.Salary, y = Total.Benefits)) +
+  geom_point(alpha = 0.6) +  
+  geom_smooth(method = "lm", color = "red", se = FALSE) + 
+  labs(
+    title = "Scatter plot of Total Salary and Total Benefits",
+    x = "Total Salary (in $USD)",
+    y = "Total Benefits (in $USD)"
+  ) +
+  theme_minimal()
+```
+
+
+## Question 3
+
+Now, we want to do k-means clustering. Before we do, create an Elbow Chart. What would you argue is the "best" number of k?
+
+Answer: According to the elbow chart, the best number is k=3 as the elbow being formed is at almost 3. The reduction in within-cluster sum of squares becomes less significant after this point. 
+
+
+```{r}
+df1 <- df[, c("Total.Salary", "Total.Benefits")]
+
+source('BabsonAnalytics.R')
+elbowChart(df1)
+```
+
+
+## Question 4
+
+Now, run a k-means clustering. Use 4 as the number of clusters. Given the size of the data set, feel free to use nstart = 10, as this will lower computational time. 
+
+```{r}
+
+set.seed(1234)
+model <- kmeans(df1, centers=4, nstart=10)
+
+```
+
+
+## Question 5
+
+Take a look at the cluster size and centers. How would you describe each of your clusters? What seems to distinguish each cluster from the others? Also, which cluster is the largest?
+
+Answer: According to the model we ran, there are in total of 4 clusters, with the respective sizes to be 92691, 30889, 75135, 93110 which suggests that each cluster has these many observations in it. In this respective decreasing order, the size of the clusters is 4,1,3,2, with 4 being the largest and 2 being the smallest. The centers code gives us the center point of the clusters with the coordinates on x-axis = Total.Salary and y-axis = Total.Benefits. Each cluster has its center point reflected respectively, and each cluster has a different center point. 
+
+```{r}
+
+model$size
+model$centers
+
+```
+
+## Question 6
+
+Bind the clusters with the data frame. Use this new data frame to create a plot with Total Salary and Total Benefits. Make sure each cluster is a different color on your graph.
+
+```{r}
+
+df_clusters <- cbind(df, cluster = model$cluster)
+
+# Additional Context to our question
+summary(df_clusters[df_clusters$cluster==1,])
+summary(df_clusters[df_clusters$cluster==2,])
+summary(df_clusters[df_clusters$cluster==3,])
+summary(df_clusters[df_clusters$cluster==4,])
+
+model$cluster <- as.factor(model$cluster)
+ggplot(df1,aes(x=Total.Salary,y=Total.Benefits,col=model$cluster)) +
+  geom_point()
+
+```
+
+
+## Question 7
+
+Now, let's run hierarchichal clustering. Do the following:
+* Import the raw data into R again.
+* Keep only three columns: Employee Identifier, Total Salary, and Total Benefits.
+* Standardize your variables.
+
+```{r}
+rm(list = ls()) # clears global environment
+#import data
+dfh <- read.csv("Employee_Compensation_SF.csv")
+
+dfh1 <- dfh[,c("Employee.Identifier","Total.Salary" ,"Total.Benefits")]
+
+#Standardize Variables
+
+standardizer <- preProcess(dfh1,method = c("scale","center"))
+dfh1 <- predict(standardizer, dfh1)
+
+
+```
+
+## Question 8
+
+Try to obtain the distance matrix. What happens?
+
+Answer: The dataset is to large, thus R gives an error as its allowed memory capacity is reached for this particular visualization "vector memory limit of 16.0 Gb reached, see mem.maxVSize()".
+
+```{r}
+#d <- dist(dfh1) # it needs the distance matrix to insert into the model
+#d
+```
+
+## Question 9
+
+Now keep only the first 200 rows of data with the three variables mentioned in Question 7. Obtain the distance matrix. Then Model with average linkage, single linkage, and complete linkage and plot the dendrograms. Notice that the dendrogram plots are not useful. What is the issue with the data that makes heirarchical clustering not useful?
+
+Answer: The dendograms are not useful as the data has a large number of observations, which makes the labels to cluttered together. Thus it is really hard to make a plausible incite from the visual. hierarchical clustering is more suitable for small number of observations so that the labels are visual properly and the linkage is properly visible in the visualization. 
+
+```{r}
+
+dfh1 <- dfh1[1:200,]
+
+d <- dist(dfh1) 
+d
+
+
+# model with average linkage
+model <- hclust(d, method="average") # method is the linkage function to use
+plot(model, main="Average Linkage", labels=dfh1$Employee.Identifier)
+axis(2,cex.axis=0.2)
+
+# model with single linkage
+model <- hclust(d, method="single")
+plot(model, main="Single Linkage", labels=dfh1$Employee.Identifier) 
+
+# model with complete linkage
+model <- hclust(d, method="complete")
+plot(model,main="Complete Linkage", labels=dfh1$Employee.Identifier) 
+
+```
+
