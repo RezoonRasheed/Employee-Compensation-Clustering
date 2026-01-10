@@ -1,11 +1,56 @@
-This assignment analyzes 2016 San Francisco public employee compensation data using k-means and hierarchical clustering. The dataset (Employee_Compensation_SF.csv) includes salary, benefits, and total compensation variables. The analysis focuses primarily on Total Salary and Total Benefits to identify natural groupings among employees.
+# Employee Compensation Clustering Analysis
 
-The workflow begins by importing the data, removing rows with missing values, and excluding non-numeric or categorical variables that are inappropriate for k-means clustering. The remaining numeric variables are standardized using centering and scaling to ensure equal contribution to distance calculations.
+## Project Overview
+This assignment analyzes 2016 San Francisco public employee compensation data using k-means and hierarchical clustering techniques. The goal is to identify natural groupings among employees based on compensation patterns, with a primary focus on Total Salary and Total Benefits.
 
-Exploratory analysis includes a scatter plot of Total Salary versus Total Benefits using ggplot2, which shows a clear positive relationship between the two variables. An elbow chart is then generated (using BabsonAnalytics.R) to help determine an appropriate number of clusters, suggesting an optimal value of approximately three.
+## Dataset
+- **File:** Employee_Compensation_SF.csv  
+- **Scope:** Public employees in San Francisco (2016)  
 
-K-means clustering is performed using four clusters with multiple random starts to improve stability. Cluster sizes and centers are examined, and clusters are bound back to the dataset for visualization. A colored scatter plot illustrates how employees are segmented based on compensation patterns.
+**Key Variables**
+- Total Salary  
+- Total Benefits  
 
-Hierarchical clustering is also explored. When attempting to compute a distance matrix on the full dataset, R exceeds memory limits due to the large number of observations. To address this, only the first 200 observations are used. Dendrograms are created using average, single, and complete linkage methods; however, the results are not visually informative due to label congestion and the inherent limitations of hierarchical clustering for large datasets.
+The dataset includes salary, benefits, and total compensation variables. Non-numeric and categorical variables are excluded for clustering suitability.
 
-To run this analysis, ensure that the data file and BabsonAnalytics.R are located in the working directory specified in the setup chunk. Required packages include caret and ggplot2. The final output is rendered as an HTML document.
+## Objectives
+- Identify natural employee segments based on compensation  
+- Apply and compare k-means and hierarchical clustering methods  
+- Determine an appropriate number of clusters using the elbow method  
+- Visualize compensation-based groupings for interpretation  
+
+## Methodology
+- Data imported and cleaned by removing missing values  
+- Numeric variables standardized using centering and scaling  
+- Exploratory analysis conducted using scatter plots of Total Salary vs. Total Benefits  
+- Elbow chart used to identify an optimal number of clusters  
+- K-means clustering performed with multiple random starts  
+- Cluster assignments visualized through colored scatter plots  
+- Hierarchical clustering explored on a reduced sample due to memory constraints  
+
+## Tools & Technologies
+- R / Quarto (.qmd)  
+- ggplot2  
+- caret  
+- BabsonAnalytics.R  
+
+## Repository Structure
+- Assignment_Clustering.qmd # Main analysis file
+-  Employee_Compensation_SF.csv # Dataset
+-  BabsonAnalytics.R # Supporting functions
+-  README.md # Project documentation
+
+## How to Run
+1. Place the dataset and `BabsonAnalytics.R` in the working directory  
+2. Open the `.qmd` file in RStudio  
+3. Install required packages (`caret`, `ggplot2`)  
+4. Knit the file to HTML to view results  
+
+## Key Outcomes
+- Clear segmentation of employees based on compensation levels  
+- Evidence of a strong relationship between salary and benefits  
+- Practical comparison of clustering techniques and their limitations  
+
+## Author
+Rezoon Rasheed  
+MS in Business Analytics
